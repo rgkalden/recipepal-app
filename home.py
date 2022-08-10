@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 st.title("RecipePal")
 
+# Load and Process data
+
+
 @st.cache()
 def loadRawData(filename, nrows):
     return pd.read_parquet(filename)[:nrows]
@@ -14,9 +17,11 @@ def selectColumns(dataframe, columns):
     newDataframe = dataframe.copy()
     return newDataframe[columns]
 
+
 def convertTimes(dataframe, columns):
     for column in columns:
-        dataframe[column] = pd.to_timedelta(dataframe[column], errors='coerce') / np.timedelta64(1, 'm')
+        dataframe[column] = pd.to_timedelta(
+            dataframe[column], errors='coerce') / np.timedelta64(1, 'm')
 
 
 def removeNullValues(dataframe):
@@ -26,9 +31,9 @@ def removeNullValues(dataframe):
 data = loadRawData('recipes.parquet', 100)
 
 keepColumns = ['Name',
-               'CookTime', 'PrepTime', 'TotalTime', 
-               'RecipeCategory', 
-               #'RecipeIngredientQuantities', 
+               'CookTime', 'PrepTime', 'TotalTime',
+               'RecipeCategory',
+               # 'RecipeIngredientQuantities',
                'RecipeIngredientParts',
                'RecipeInstructions']
 
@@ -38,26 +43,32 @@ convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 
 removeNullValues(reducedData)
 
+# Display Data
 
+st.subheader('Recipe Database')
 st.dataframe(reducedData)
 
+# Chart for recipe categories
+
+st.subheader('Top Categories of Recipes')
+topNumberCategories = st.slider('Number of categories to display?', 0, 20, 10)
+topCategories = reducedData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
+topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(
+    topCategories)]
 
 figCategories = plt.figure(figsize=(12, 4))
-plt.hist(reducedData['RecipeCategory'], bins=30)
-plt.title('Recipe Categories')
+plt.hist(topCategoriesDataframe['RecipeCategory'])
 plt.ylabel('Count')
 plt.xticks(rotation=90)
+plt.xlabel('Recipe Name')
 st.pyplot(figCategories)
 
+# Chart for cooking times
+
+st.subheader('Cooking Times')
 figTotalTime = plt.figure(figsize=(12, 4))
-plt.hist(reducedData['TotalTime'], bins=30)
-plt.title('Cooking Times')
+plt.hist(reducedData['TotalTime'])
 plt.ylabel('Count')
 plt.xticks(rotation=90)
+plt.xlabel('Total Cooking Time (minutes)')
 st.pyplot(figTotalTime)
-
-
-
-
-
-
