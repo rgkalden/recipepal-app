@@ -14,6 +14,10 @@ def selectColumns(dataframe, columns):
     newDataframe = dataframe.copy()
     return newDataframe[columns]
 
+def convertTimes(dataframe, columns):
+    for column in columns:
+        dataframe[column] = pd.to_timedelta(dataframe[column], errors='coerce') / np.timedelta64(1, 'm')
+
 
 def removeNullValues(dataframe):
     dataframe.dropna(axis=0, inplace=True)
@@ -27,9 +31,12 @@ keepColumns = ['Name',
                #'RecipeIngredientQuantities', 
                'RecipeIngredientParts',
                'RecipeInstructions']
+
 reducedData = selectColumns(data, keepColumns)
 
-removeNullValues(reducedData.drop('CookTime', axis=1))
+convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
+
+removeNullValues(reducedData)
 
 
 st.dataframe(reducedData)
