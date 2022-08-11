@@ -57,6 +57,7 @@ st.dataframe(filteredData)
 
 st.subheader('Most Frequently Cooked Recipe Categories')
 topNumberCategories = st.slider('Number of categories to display?', 0, 20, 10)
+st.write('Top ', topNumberCategories, 'categories are displayed')
 topCategories = filteredData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
 topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(
     topCategories)]
