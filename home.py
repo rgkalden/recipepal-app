@@ -48,8 +48,8 @@ removeNullValues(reducedData)
 st.subheader('Recipe Database')
 #st.dataframe(reducedData)
 
-totalTimeRange = st.slider('Select a range of Total Cooking Time', 0, 1500, (25, 75))
-
+maxTotalTime = int(reducedData['TotalTime'].max())
+totalTimeRange = st.slider('Select a range of Total Cooking Time (minutes)', 0, maxTotalTime, (25, 75))
 filteredData = reducedData[(reducedData['TotalTime'] >= totalTimeRange[0]) & (reducedData['TotalTime'] <= totalTimeRange[1])]
 st.dataframe(filteredData)
 
