@@ -3,7 +3,12 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.title("RecipePal")
+st.title("RecipePal 🍲")
+
+with st.expander("How to use this app"):
+     st.write("""
+         How to
+     """)
 
 # Load and Process data
 
@@ -45,7 +50,7 @@ removeNullValues(reducedData)
 
 # Display Data
 
-st.subheader('Recipe Database')
+#st.subheader('Recipe Database')
 #st.dataframe(reducedData)
 
 maxTotalTime = int(reducedData['TotalTime'].max())
@@ -54,17 +59,21 @@ totalTimeRange = st.slider('Select a range of Total Cooking Time (minutes)', 0, 
 filteredData = reducedData[(reducedData['TotalTime'] >= totalTimeRange[0]) & (reducedData['TotalTime'] <= totalTimeRange[1])]
 
 recipeCategories = filteredData['RecipeCategory'].unique().tolist()
-selection = st.multiselect('Choose category', recipeCategories, recipeCategories)
+selection = st.multiselect('Choose category', recipeCategories)
 filteredData = filteredData[filteredData['RecipeCategory'].isin(selection)]
 
 st.dataframe(filteredData)
 
+# Can't decide what to eat? Visualize recipe database
+
+st.subheader('Not sure what you want to cook? 😕')
+st.write('Visualization of your recipe database')
+
 # Chart for recipe categories
 
-st.subheader('Most Frequently Cooked Recipe Categories')
 topNumberCategories = st.slider('Number of categories to display?', 0, 20, 10)
 st.write('Top ', topNumberCategories, 'categories are displayed')
-topCategories = filteredData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
+topCategories = reducedData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
 topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(
     topCategories)]
 
@@ -77,9 +86,9 @@ st.pyplot(figCategories)
 
 # Chart for cooking times
 
-st.subheader('Distribution of Cooking Times')
+st.write('Distribution of Cooking Times')
 figTotalTime = plt.figure(figsize=(12, 4))
-plt.hist(filteredData['TotalTime'])
+plt.hist(reducedData['TotalTime'])
 plt.ylabel('Count')
 plt.xticks(rotation=90)
 plt.xlabel('Total Cooking Time (minutes)')
