@@ -46,11 +46,16 @@ removeNullValues(reducedData)
 # Display Data
 
 st.subheader('Recipe Database')
-st.dataframe(reducedData)
+#st.dataframe(reducedData)
+
+totalTimeRange = st.slider('Select a range of Total Cooking Time', 0, 1500, (25, 75))
+
+filteredData = reducedData[(reducedData['TotalTime'] >= totalTimeRange[0]) & (reducedData['TotalTime'] <= totalTimeRange[1])]
+st.dataframe(filteredData)
 
 # Chart for recipe categories
 
-st.subheader('Top Categories of Recipes')
+st.subheader('Most Frequently Cooked Categories of Recipes')
 topNumberCategories = st.slider('Number of categories to display?', 0, 20, 10)
 topCategories = reducedData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
 topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(
@@ -65,7 +70,7 @@ st.pyplot(figCategories)
 
 # Chart for cooking times
 
-st.subheader('Cooking Times')
+st.subheader('Distribution of Cooking Times')
 figTotalTime = plt.figure(figsize=(12, 4))
 plt.hist(reducedData['TotalTime'])
 plt.ylabel('Count')
