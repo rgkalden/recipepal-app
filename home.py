@@ -49,8 +49,15 @@ st.subheader('Recipe Database')
 #st.dataframe(reducedData)
 
 maxTotalTime = int(reducedData['TotalTime'].max())
+# max time range arbitrarily set to 120
 totalTimeRange = st.slider('Select a range of Total Cooking Time (minutes)', 0, 120, (25, 75))
 filteredData = reducedData[(reducedData['TotalTime'] >= totalTimeRange[0]) & (reducedData['TotalTime'] <= totalTimeRange[1])]
+
+recipeCategories = filteredData['RecipeCategory'].unique().tolist()
+selection = st.multiselect('Choose category', recipeCategories, recipeCategories)
+if selection is not None:
+    filteredData = filteredData[filteredData['RecipeCategory'].isin(selection)]
+
 st.dataframe(filteredData)
 
 # Chart for recipe categories
