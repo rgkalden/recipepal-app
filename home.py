@@ -29,6 +29,16 @@ def convertTimes(dataframe, columns):
             dataframe[column], errors='coerce') / np.timedelta64(1, 'm')
 
 
+def stringToList(string):
+    cleanedString = string.replace('[', '').replace(']', '').replace('\'', '')
+    list = cleanedString.split(' ')
+    return list
+
+def cleanStringSeries(dataframe, columns):
+    for column in columns:
+        dataframe[column] = dataframe[column].apply(stringToList)
+
+
 def removeNullValues(dataframe):
     dataframe.dropna(axis=0, inplace=True)
 
@@ -45,6 +55,9 @@ keepColumns = ['Name',
 reducedData = selectColumns(data, keepColumns)
 
 convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
+
+cleanStringSeries(reducedData, columns=['RecipeIngredientParts', 'RecipeInstructions'])
+
 
 removeNullValues(reducedData)
 
