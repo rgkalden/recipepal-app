@@ -15,7 +15,7 @@ with st.expander("How to use this app"):
 
 @st.cache()
 def loadRawData(filename, nrows):
-    return pd.read_csv(filename)[:nrows]
+    return pd.read_parquet(filename)[:nrows]
 
 
 def selectColumns(dataframe, columns):
@@ -28,27 +28,15 @@ def convertTimes(dataframe, columns):
         dataframe[column] = pd.to_timedelta(
             dataframe[column], errors='coerce') / np.timedelta64(1, 'm')
 
-
-def stringToList(string):
-    cleanedString = string.replace('[', '').replace(']', '').replace('\'', '')
-    list = cleanedString.split(' ')
-    return list
-
-def cleanStringSeries(dataframe, columns):
-    for column in columns:
-        dataframe[column] = dataframe[column].apply(stringToList)
-
-
 def removeNullValues(dataframe):
     dataframe.dropna(axis=0, inplace=True)
 
 
-data = loadRawData('recipes.csv', 100)
+data = loadRawData('recipes-sampled.parquet', 100)
 
 keepColumns = ['Name',
                'CookTime', 'PrepTime', 'TotalTime',
                'RecipeCategory',
-               # 'RecipeIngredientQuantities',
                'RecipeIngredientParts',
                'RecipeInstructions']
 
@@ -56,26 +44,27 @@ reducedData = selectColumns(data, keepColumns)
 
 convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 
-cleanStringSeries(reducedData, columns=['RecipeIngredientParts', 'RecipeInstructions'])
-
 
 removeNullValues(reducedData)
 
 # Display Data
 
-#st.subheader('Recipe Database')
-#st.dataframe(reducedData)
 
-maxTotalTime = int(reducedData['TotalTime'].max())
+
+recipeCategories = reducedData['RecipeCategory'].unique().tolist()
+selection = st.multiselect('Choose category', recipeCategories)
+filteredData = reducedData[reducedData['RecipeCategory'].isin(selection)]
+
+#maxTotalTime = int(filteredData['TotalTime'].max())
 # max time range arbitrarily set to 120
 totalTimeRange = st.slider('Select a range of Total Cooking Time (minutes)', 0, 120, (25, 75))
-filteredData = reducedData[(reducedData['TotalTime'] >= totalTimeRange[0]) & (reducedData['TotalTime'] <= totalTimeRange[1])]
-
-recipeCategories = filteredData['RecipeCategory'].unique().tolist()
-selection = st.multiselect('Choose category', recipeCategories)
-filteredData = filteredData[filteredData['RecipeCategory'].isin(selection)]
+filteredData = filteredData[(filteredData['TotalTime'] >= totalTimeRange[0]) & (filteredData['TotalTime'] <= totalTimeRange[1])]
 
 st.dataframe(filteredData)
+if len(filteredData) == 0:
+    st.write('No recipes found')
+else:
+    st.write(len(filteredData), " recipes found")
 
 # Can't decide what to eat? Visualize recipe database
 
@@ -92,7 +81,7 @@ topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(
 
 figCategories = plt.figure(figsize=(12, 4))
 plt.hist(topCategoriesDataframe['RecipeCategory'])
-plt.ylabel('Count')
+plt.ylabel('Number of Recipes')
 plt.xticks(rotation=90)
 plt.xlabel('Recipe Name')
 st.pyplot(figCategories)
@@ -102,7 +91,25 @@ st.pyplot(figCategories)
 st.write('Distribution of Cooking Times')
 figTotalTime = plt.figure(figsize=(12, 4))
 plt.hist(reducedData['TotalTime'])
-plt.ylabel('Count')
+plt.ylabel('Number of Recipes')
 plt.xticks(rotation=90)
 plt.xlabel('Total Cooking Time (minutes)')
 st.pyplot(figTotalTime)
+
+# Chart for ingredients
+
+st.write('Count of Ingredients')
+def to_1D(series):
+    return pd.Series([x for _list in series for x in _list])
+
+topNumberIngredients = 20
+
+labels = to_1D(reducedData['RecipeIngredientParts']).value_counts().index[:topNumberIngredients]
+values = to_1D(reducedData['RecipeIngredientParts']).value_counts().values[:topNumberIngredients]
+
+figIngredients = plt.figure(figsize=(12, 4))
+plt.bar(labels, values)
+plt.ylabel('Number of Recipes')
+plt.xticks(rotation=90)
+plt.xlabel('Ingredient')
+st.pyplot(figIngredients)
