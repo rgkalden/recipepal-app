@@ -55,8 +55,7 @@ filteredData = reducedData[(reducedData['TotalTime'] >= totalTimeRange[0]) & (re
 
 recipeCategories = filteredData['RecipeCategory'].unique().tolist()
 selection = st.multiselect('Choose category', recipeCategories, recipeCategories)
-if selection is not None:
-    filteredData = filteredData[filteredData['RecipeCategory'].isin(selection)]
+filteredData = filteredData[filteredData['RecipeCategory'].isin(selection)]
 
 st.dataframe(filteredData)
 
