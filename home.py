@@ -93,8 +93,9 @@ filterOnTime = st.sidebar.checkbox('Filter on cooking time')
 
 if filterOnTime:    
     maxCookingTime = int(reducedData['TotalTime'].max())
-    totalTimeRange = st.sidebar.slider('Select a range of Total Cooking Time (minutes)', 0, maxCookingTime, (0, 120))
-    filteredData = filteredData[(filteredData['TotalTime'] >= totalTimeRange[0]) & (filteredData['TotalTime'] <= totalTimeRange[1])]
+    minTime = st.sidebar.number_input('Min', min_value=0, max_value=maxCookingTime,value=0)
+    maxTime = st.sidebar.number_input('Max', min_value=0, max_value=maxCookingTime, value=120)
+    filteredData = filteredData[(filteredData['TotalTime'] >= minTime) & (filteredData['TotalTime'] <= maxTime)]
 
 filterOnIngredient = st.sidebar.checkbox('Filter by Ingredient')
 
