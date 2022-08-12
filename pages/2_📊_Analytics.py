@@ -24,20 +24,20 @@ convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 removeNullValues(reducedData)
 
 # Title
-st.title('Analytics')
+#st.title('Analytics')
 
 # Visualize recipe database
 
 
 st.subheader('Not sure what you want to cook? 😕')
-st.write('Visualization of your recipe database')
+st.write('Visualization of the recipe database')
 
 
 # Chart for recipe categories
 
 
 topNumberCategories = st.slider('Number of categories to display?', 0, 20, 10)
-st.write('Top ', topNumberCategories, 'categories are displayed')
+st.write('Top ', topNumberCategories, 'most common categories are displayed')
 topCategories = reducedData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
 topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(topCategories)]
 

@@ -17,11 +17,15 @@ with st.expander("How to use this app"):
          RecipePal is a recipe search tool. You can filter the recipe database by the category, total cooking times, 
          and by ingredient. The resulting recipe information is displayed below, where you
          can also find the instructions. 
-         
-         It is possible that no recipes matching your search exist. Don't give up, try again!
 
-         If you really can't decide what to cook, then you can consult the 📊 Analytics page to see what kinds
-         of recipes, cooking times, and ingredients exist in the database, and then go back and search.
+         Hints:
+         - You can pick multiple categories. Pick a main course, vegetable, and desert to plan a whole meal!
+         - In a hurry? Try using the filters for total cooking time. You can choose the minimum and maximum time simultaneously.
+         - You can also pick multiple ingredients. Use the "and" method to find recipes containing all ingredients. 
+            Use the "or" method to find all recipes that have at least one of the ingredients you picked.
+         - It is possible that no recipes matching your search exist. Don't give up, try again!
+         - If you really can't decide what to cook, then you can consult the 📊 Analytics page to see what kinds
+            of recipes, cooking times, and ingredients exist in the database, and then go back and search.
      """)
 
 # Load and Process data
