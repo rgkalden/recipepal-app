@@ -38,8 +38,11 @@ def searchItem(dataframe, column, target):
     return foundIndex
 
 
-def to_1D(series):
-    return pd.Series([x for _list in series for x in _list])
+def displayNumberOfRecipes(dataframe):
+    if len(dataframe) == 0:
+        st.write('No recipes found')
+    else:
+        st.write(len(dataframe), " recipes found")
 
 
 # Title and How To
@@ -49,14 +52,14 @@ st.title("RecipePal 🍲")
 
 with st.expander("How to use this app"):
      st.write("""
-         RecipePal is a recipe search tool. You can search by the recipe category, range of cooking times, 
-         and also by ingredient. The resulting recipe information is displayed below, where you
+         RecipePal is a recipe search tool. You can filter the recipe database by the category, total cooking times, 
+         and by ingredient. The resulting recipe information is displayed below, where you
          can also find the instructions. 
          
          It is possible that no recipes matching your search exist. Don't give up, try again!
 
-         If you really can't decide what to cook, then you can consult the charts below to see what kinds
-         of recipes, cooking times, and ingredients exist, then go back and search.
+         If you really can't decide what to cook, then you can consult the 📊 Analytics page to see what kinds
+         of recipes, cooking times, and ingredients exist in the database, and then go back and search.
      """)
 
 # Load and Process data
@@ -89,12 +92,12 @@ if filterOnCategory:
     filteredData = reducedData[reducedData['RecipeCategory'].isin(selection)]
 
 
-filterOnTime = st.sidebar.checkbox('Filter on cooking time')
+filterOnTime = st.sidebar.checkbox('Filter on Total Cooking Time')
 
 if filterOnTime:    
     maxCookingTime = int(reducedData['TotalTime'].max())
-    minTime = st.sidebar.number_input('Min', min_value=0, max_value=maxCookingTime,value=0)
-    maxTime = st.sidebar.number_input('Max', min_value=0, max_value=maxCookingTime, value=120)
+    minTime = st.sidebar.number_input('Min (minutes)', min_value=0, max_value=maxCookingTime,value=0)
+    maxTime = st.sidebar.number_input('Max (minutes)', min_value=0, max_value=maxCookingTime, value=120)
     filteredData = filteredData[(filteredData['TotalTime'] >= minTime) & (filteredData['TotalTime'] <= maxTime)]
 
 filterOnIngredient = st.sidebar.checkbox('Filter by Ingredient')
@@ -108,62 +111,9 @@ if filterOnIngredient:
 
 if filterOnCategory or filterOnTime or filterOnIngredient:
     st.dataframe(filteredData)
-
-    if len(filteredData) == 0:
-        st.write('No recipes found')
-    else:
-        st.write(len(filteredData), " recipes found")
+    displayNumberOfRecipes(filteredData)
 else:
     st.dataframe(reducedData)
+    displayNumberOfRecipes(reducedData)
 
 
-# Visualize recipe database
-
-
-st.subheader('Not sure what you want to cook? 😕')
-st.write('Visualization of your recipe database')
-
-
-# Chart for recipe categories
-
-
-topNumberCategories = st.slider('Number of categories to display?', 0, 20, 10)
-st.write('Top ', topNumberCategories, 'categories are displayed')
-topCategories = reducedData['RecipeCategory'].value_counts().index.to_list()[:topNumberCategories]
-topCategoriesDataframe = reducedData[reducedData['RecipeCategory'].isin(topCategories)]
-
-figCategories = plt.figure(figsize=(12, 4))
-plt.hist(topCategoriesDataframe['RecipeCategory'])
-plt.ylabel('Number of Recipes')
-plt.xticks(rotation=90)
-plt.xlabel('Recipe Name')
-st.pyplot(figCategories)
-
-
-# Chart for cooking times
-
-
-st.write('Distribution of Cooking Times')
-figTotalTime = plt.figure(figsize=(12, 4))
-plt.hist(topCategoriesDataframe['TotalTime'])
-plt.ylabel('Number of Recipes')
-plt.xticks(rotation=90)
-plt.xlabel('Total Cooking Time (minutes)')
-st.pyplot(figTotalTime)
-
-
-# Chart for ingredients
-
-
-st.write('Distribution of Ingredients')
-
-topNumberIngredients = 20
-labels = to_1D(topCategoriesDataframe['RecipeIngredientParts']).value_counts().index[:topNumberIngredients]
-values = to_1D(topCategoriesDataframe['RecipeIngredientParts']).value_counts().values[:topNumberIngredients]
-
-figIngredients = plt.figure(figsize=(12, 4))
-plt.bar(labels, values)
-plt.ylabel('Number of Recipes')
-plt.xticks(rotation=90)
-plt.xlabel('Ingredient')
-st.pyplot(figIngredients)
