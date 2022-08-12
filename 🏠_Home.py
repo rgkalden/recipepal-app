@@ -26,17 +26,33 @@ def removeNullValues(dataframe):
     dataframe.dropna(axis=0, inplace=True)
 
 
-def searchItem(dataframe, column, target):
+def to_1D(series):
+        return pd.Series([x for _list in series for x in _list])
+
+
+def searchItem(dataframe, column, target, mode='or'):
     series = dataframe[column].to_list()
 
-    foundIndex = []
-    for i in range(0, len(series)):
-        for item in series[i]:
-            if item == target:
-                foundIndex.append(i)
+    # OR Search
+    if mode == 'or':
+        foundIndex = []
+        for targetValue in target:
+            for i in range(0, len(series)):
+                for item in series[i]:
+                    if item == targetValue:
+                        foundIndex.append(i)
 
-    return foundIndex
+        return foundIndex
 
+    # AND Search
+    elif mode == 'and':
+        foundIndex = []
+        for i in range(0, len(series)):
+                for item in series[i]:
+                    if item in target:
+                        foundIndex.append(i)
+
+        return foundIndex
 
 def displayNumberOfRecipes(dataframe):
     if len(dataframe) == 0:
@@ -80,12 +96,11 @@ convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 removeNullValues(reducedData)
 
 
-# Display Data
-
-filterOnCategory = st.sidebar.checkbox('Filter on Category')
+# Filters in Sidebar
 
 filteredData = reducedData.copy()
 
+filterOnCategory = st.sidebar.checkbox('Filter on Category')
 if filterOnCategory:
     recipeCategories = reducedData['RecipeCategory'].unique().tolist()
     selection = st.sidebar.multiselect('Choose category', recipeCategories)
@@ -93,21 +108,25 @@ if filterOnCategory:
 
 
 filterOnTime = st.sidebar.checkbox('Filter on Total Cooking Time')
-
 if filterOnTime:    
     maxCookingTime = int(reducedData['TotalTime'].max())
     minTime = st.sidebar.number_input('Min (minutes)', min_value=0, max_value=maxCookingTime,value=0)
     maxTime = st.sidebar.number_input('Max (minutes)', min_value=0, max_value=maxCookingTime, value=120)
     filteredData = filteredData[(filteredData['TotalTime'] >= minTime) & (filteredData['TotalTime'] <= maxTime)]
 
+
 filterOnIngredient = st.sidebar.checkbox('Filter by Ingredient')
-
 if filterOnIngredient:
-    ingredient = st.sidebar.text_input('Ingredient Name', '')
-
-    foundIndex = searchItem(filteredData, column='RecipeIngredientParts', target=ingredient)
+    ingredientList = to_1D(reducedData['RecipeIngredientParts']).value_counts().index.to_list()
+    ingredient = st.sidebar.multiselect('Choose ingredients', ingredientList)
+    searchMethod = st.sidebar.radio('Search Method', ('and', 'or'), index=0)
+    foundIndex = searchItem(filteredData, column='RecipeIngredientParts', target=ingredient, mode=searchMethod)
     if ingredient != '':
         filteredData = filteredData.iloc[foundIndex]
+
+
+# Display Data
+
 
 if filterOnCategory or filterOnTime or filterOnIngredient:
     st.dataframe(filteredData)
