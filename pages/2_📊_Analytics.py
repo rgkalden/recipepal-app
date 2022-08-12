@@ -5,29 +5,7 @@ import matplotlib.pyplot as plt
 
 # Functions
 
-
-@st.cache()
-def loadRawData(filename, nrows):
-    return pd.read_parquet(filename)[:nrows]
-
-
-def selectColumns(dataframe, columns):
-    newDataframe = dataframe.copy()
-    return newDataframe[columns]
-
-
-def convertTimes(dataframe, columns):
-    for column in columns:
-        dataframe[column] = pd.to_timedelta(
-            dataframe[column], errors='coerce') / np.timedelta64(1, 'm')
-
-
-def removeNullValues(dataframe):
-    dataframe.dropna(axis=0, inplace=True)
-
-
-def to_1D(series):
-    return pd.Series([x for _list in series for x in _list])
+from functions import *
 
 # Load and Process data
 
