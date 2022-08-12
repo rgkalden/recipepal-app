@@ -3,23 +3,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-st.title("RecipePal 🍲")
-
-with st.expander("How to use this app"):
-     st.write("""
-         RecipePal is a recipe search tool. You can search by the recipe category, range of cooking times, 
-         and also by ingredient. The resulting recipe information is displayed below, where you
-         can also find the instructions. 
-         
-         It is possible that no recipes matching your search exist. Don't give up, try again!
-
-         If you really can't decide what to cook, then you can consult the charts below to see what kinds
-         of recipes, cooking times, and ingredients exist, then go back and search.
-     """)
-
-# Load and Process data
-
-
+# Functions
 @st.cache()
 def loadRawData(filename, nrows):
     return pd.read_parquet(filename)[:nrows]
@@ -38,6 +22,34 @@ def convertTimes(dataframe, columns):
 def removeNullValues(dataframe):
     dataframe.dropna(axis=0, inplace=True)
 
+def searchItem(dataframe, column, target):
+    series = dataframe[column].to_list()
+
+    foundIndex = []
+    for i in range(0, len(series)):
+        for item in series[i]:
+            if item == target:
+                foundIndex.append(i)
+
+    return foundIndex
+
+# Title and How To
+
+st.title("RecipePal 🍲")
+
+with st.expander("How to use this app"):
+     st.write("""
+         RecipePal is a recipe search tool. You can search by the recipe category, range of cooking times, 
+         and also by ingredient. The resulting recipe information is displayed below, where you
+         can also find the instructions. 
+         
+         It is possible that no recipes matching your search exist. Don't give up, try again!
+
+         If you really can't decide what to cook, then you can consult the charts below to see what kinds
+         of recipes, cooking times, and ingredients exist, then go back and search.
+     """)
+
+# Load and Process data
 
 data = loadRawData('recipes-sampled.parquet', 100)
 
@@ -51,8 +63,8 @@ reducedData = selectColumns(data, keepColumns)
 
 convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 
-
 removeNullValues(reducedData)
+
 
 # Display Data
 
@@ -63,17 +75,6 @@ filteredData = reducedData[reducedData['RecipeCategory'].isin(selection)]
 # max time range arbitrarily set to 120
 totalTimeRange = st.slider('Select a range of Total Cooking Time (minutes)', 0, 120, (25, 75))
 filteredData = filteredData[(filteredData['TotalTime'] >= totalTimeRange[0]) & (filteredData['TotalTime'] <= totalTimeRange[1])]
-
-def searchItem(dataframe, column, target):
-    series = dataframe[column].to_list()
-
-    foundIndex = []
-    for i in range(0, len(series)):
-        for item in series[i]:
-            if item == target:
-                foundIndex.append(i)
-
-    return foundIndex
 
 ingredient = st.text_input('Ingredient Name', '')
 
