@@ -79,25 +79,27 @@ removeNullValues(reducedData)
 
 # Display Data
 
-filterOnCategory = st.checkbox('Filter on Category')
+filterOnCategory = st.sidebar.checkbox('Filter on Category')
+
+filteredData = reducedData.copy()
 
 if filterOnCategory:
     recipeCategories = reducedData['RecipeCategory'].unique().tolist()
-    selection = st.multiselect('Choose category', recipeCategories)
+    selection = st.sidebar.multiselect('Choose category', recipeCategories)
     filteredData = reducedData[reducedData['RecipeCategory'].isin(selection)]
 
 
-filterOnTime = st.checkbox('Filter on cooking time')
+filterOnTime = st.sidebar.checkbox('Filter on cooking time')
 
 if filterOnTime:    
     maxCookingTime = int(reducedData['TotalTime'].max())
-    totalTimeRange = st.slider('Select a range of Total Cooking Time (minutes)', 0, maxCookingTime, (0, 120))
+    totalTimeRange = st.sidebar.slider('Select a range of Total Cooking Time (minutes)', 0, maxCookingTime, (0, 120))
     filteredData = filteredData[(filteredData['TotalTime'] >= totalTimeRange[0]) & (filteredData['TotalTime'] <= totalTimeRange[1])]
 
-filterOnIngredient = st.checkbox('Filter by Ingredient')
+filterOnIngredient = st.sidebar.checkbox('Filter by Ingredient')
 
 if filterOnIngredient:
-    ingredient = st.text_input('Ingredient Name', '')
+    ingredient = st.sidebar.text_input('Ingredient Name', '')
 
     foundIndex = searchItem(filteredData, column='RecipeIngredientParts', target=ingredient)
     if ingredient != '':
@@ -110,6 +112,8 @@ if filterOnCategory or filterOnTime or filterOnIngredient:
         st.write('No recipes found')
     else:
         st.write(len(filteredData), " recipes found")
+else:
+    st.dataframe(reducedData)
 
 
 # Visualize recipe database
