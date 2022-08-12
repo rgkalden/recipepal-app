@@ -42,17 +42,19 @@ def searchItem(dataframe, column, target, mode='or'):
                     if item == targetValue:
                         foundIndex.append(i)
 
-        return foundIndex
+        return list(set(foundIndex))
 
     # AND Search
     elif mode == 'and':
         foundIndex = []
         for i in range(0, len(series)):
                 for item in series[i]:
-                    if item in target:
+                    check = all(item in series[i] for item in target)
+                    #if item in target:
+                    if check:
                         foundIndex.append(i)
 
-        return foundIndex
+        return list(set(foundIndex))
 
 def displayNumberOfRecipes(dataframe):
     if len(dataframe) == 0:
