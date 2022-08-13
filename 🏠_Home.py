@@ -23,6 +23,7 @@ with st.expander("How to use this app"):
          - In a hurry? Try using the filters for total cooking time. You can choose the minimum and maximum time simultaneously.
          - You can also pick multiple ingredients. Use the "and" method to find recipes containing all ingredients. 
             Use the "or" method to find all recipes that have at least one of the ingredients you picked.
+         - It is possible to sort the recipe data by clicking the column headers (sort ascending, descending, alphabetical)
          - It is possible that no recipes matching your search exist. Don't give up, try again!
          - If you really can't decide what to cook, then you can consult the 📊 Analytics page to see what kinds
             of recipes, cooking times, and ingredients exist in the database, and then go back and search.
@@ -50,14 +51,14 @@ removeNullValues(reducedData)
 
 filteredData = reducedData.copy()
 
-filterOnCategory = st.sidebar.checkbox('Filter on Category')
+filterOnCategory = st.sidebar.checkbox('Filter by Category')
 if filterOnCategory:
     recipeCategories = reducedData['RecipeCategory'].unique().tolist()
     selection = st.sidebar.multiselect('Choose category', recipeCategories)
     filteredData = reducedData[reducedData['RecipeCategory'].isin(selection)]
 
 
-filterOnTime = st.sidebar.checkbox('Filter on Total Cooking Time')
+filterOnTime = st.sidebar.checkbox('Filter by Total Cooking Time')
 if filterOnTime:    
     maxCookingTime = int(reducedData['TotalTime'].max())
     minTime = st.sidebar.number_input('Min (minutes)', min_value=0, max_value=maxCookingTime,value=0)
@@ -65,7 +66,7 @@ if filterOnTime:
     filteredData = filteredData[(filteredData['TotalTime'] >= minTime) & (filteredData['TotalTime'] <= maxTime)]
 
 
-filterOnIngredient = st.sidebar.checkbox('Filter by Ingredient')
+filterOnIngredient = st.sidebar.checkbox('Filter by Ingredient(s)')
 if filterOnIngredient:
     ingredientList = to_1D(reducedData['RecipeIngredientParts']).value_counts().index.to_list()
     ingredient = st.sidebar.multiselect('Choose ingredients', ingredientList)
