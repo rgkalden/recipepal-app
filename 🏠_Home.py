@@ -9,6 +9,8 @@ from functions import *
 
 # Title and How To
 
+st.set_page_config(page_title="RecipePal", page_icon="🍲", layout="wide")
+
 
 st.title("RecipePal 🍲")
 
@@ -80,10 +82,35 @@ if filterOnIngredient:
 
 
 if filterOnCategory or filterOnTime or filterOnIngredient:
-    st.dataframe(filteredData)
-    displayNumberOfRecipes(filteredData)
+    st.dataframe(filteredData, height=220)
 else:
-    st.dataframe(reducedData)
-    displayNumberOfRecipes(reducedData)
+    st.dataframe(reducedData, height=220)
 
 
+# Metrics
+
+numRecipes = len(filteredData)
+
+topNumberIngredients = 10
+labels = to_1D(filteredData['RecipeIngredientParts']).value_counts().index.to_list()[:topNumberIngredients]
+ingredientMetric = ', '.join(labels)
+
+if numRecipes == 0:
+    cookingTimeAvg = 'N/A'
+    timeMetricString = 'N/A'
+    ingredientMetric = 'N/A'
+elif numRecipes == 1:
+    cookingTimeAvg = int(filteredData['TotalTime'])
+    cookingTimeStd = int(filteredData['TotalTime'])
+    timeMetricString = str(cookingTimeAvg) + " min"
+else:
+    cookingTimeAvg = int(filteredData['TotalTime'].mean())
+    cookingTimeStd = int(filteredData['TotalTime'].std())
+    timeMetricString = str(cookingTimeAvg) + " ± " + str(cookingTimeStd) + " min"
+
+col1, col2 = st.columns(2)
+col1.metric("Number of Recipes", numRecipes, help='Number of recipes currently shown')
+col2.metric("Total Cooking Time", timeMetricString, help='Avg ± Std Dev of Total Cooking Times currently shown')
+
+st.write('Common Ingredients')
+st.subheader(ingredientMetric)
