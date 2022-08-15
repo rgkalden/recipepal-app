@@ -34,7 +34,7 @@ with st.expander("How to use this app"):
 # Load and Process data
 
 
-data = loadRawData('recipes-sampled.parquet')
+data = loadRawData('recipes-sampled.parquet', nrows=200)
 
 keepColumns = ['Name',
                'CookTime', 'PrepTime', 'TotalTime',
