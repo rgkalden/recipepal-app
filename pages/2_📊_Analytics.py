@@ -9,7 +9,7 @@ from functions import *
 
 # Load and Process data
 
-data = loadRawData('recipes-sampled.parquet', 100)
+data = loadRawData('recipes-sampled.parquet')
 
 keepColumns = ['Name',
                'CookTime', 'PrepTime', 'TotalTime',
@@ -22,6 +22,8 @@ reducedData = selectColumns(data, keepColumns)
 convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 
 removeNullValues(reducedData)
+
+reducedData = reducedData[reducedData['TotalTime'] <= 200]
 
 # Title
 #st.title('Analytics')

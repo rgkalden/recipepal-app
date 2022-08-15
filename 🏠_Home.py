@@ -34,7 +34,7 @@ with st.expander("How to use this app"):
 # Load and Process data
 
 
-data = loadRawData('recipes-sampled.parquet', 100)
+data = loadRawData('recipes-sampled.parquet')
 
 keepColumns = ['Name',
                'CookTime', 'PrepTime', 'TotalTime',
@@ -48,6 +48,7 @@ convertTimes(reducedData, columns=['CookTime', 'PrepTime', 'TotalTime'])
 
 removeNullValues(reducedData)
 
+reducedData = reducedData[reducedData['TotalTime'] <= 200]
 
 # Filters in Sidebar
 

@@ -6,7 +6,7 @@ import pandas as pd
 
 
 @st.cache()
-def loadRawData(filename, nrows):
+def loadRawData(filename, nrows=200):
     '''
     Function to load raw data into a pandas dataframe
 
